@@ -255,3 +255,8 @@ export default function ParticipantDash() {
     </div>
   )
 }
+
+
+
+
+// notita para updatear xd me pasa por no salvar la wea ctm
