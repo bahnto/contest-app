@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
+import '../styles/participant.css'
 
 export default function SubmitEntry() {
   const { contestId } = useParams()
   const navigate = useNavigate()
   const participantName = sessionStorage.getItem(`participant_${contestId}`)
-
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [description, setDescription] = useState('')
@@ -17,100 +17,80 @@ export default function SubmitEntry() {
     const f = e.target.files[0]
     if (!f) return
     setFile(f)
-    // Show a preview if it's an image
-    if (f.type.startsWith('image/')) {
-      setPreview(URL.createObjectURL(f))
-    } else {
-      setPreview(null)
-    }
+    if (f.type.startsWith('image/')) setPreview(URL.createObjectURL(f))
+    else setPreview(null)
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!file) { setError('Please select a file.'); return }
-    setUploading(true)
-    setError('')
-
-    // Upload file to Supabase Storage
+    if (!file) { setError('SELECT A FILE.'); return }
+    setUploading(true); setError('')
     const ext = file.name.split('.').pop()
     const filename = `${contestId}/${Date.now()}_${participantName}.${ext}`
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('entries')
-      .upload(filename, file, { upsert: false })
-
-    if (uploadError) {
-      setError('Upload failed: ' + uploadError.message)
-      setUploading(false)
-      return
-    }
-
-    // Get the public URL
-    const { data: urlData } = supabase.storage
-      .from('entries')
-      .getPublicUrl(filename)
-
-    const mediaUrl = urlData.publicUrl
-
-    // Save entry to database
-    const { error: dbError } = await supabase
-      .from('entries')
-      .upsert(
-        {
-          contest_id: contestId,
-          author_name: participantName,
-          media_url: mediaUrl,
-          description: description.trim(),
-        },
-        { onConflict: 'contest_id,author_name' } // one entry per person per contest
-      )
-
-    if (dbError) {
-      setError('Could not save entry: ' + dbError.message)
-      setUploading(false)
-      return
-    }
-
+    const { error: uploadError } = await supabase.storage.from('entries').upload(filename, file, { upsert: false })
+    if (uploadError) { setError('UPLOAD FAILED: ' + uploadError.message); setUploading(false); return }
+    const { data: urlData } = supabase.storage.from('entries').getPublicUrl(filename)
+    const { error: dbError } = await supabase.from('entries').upsert(
+      { contest_id: contestId, author_name: participantName, media_url: urlData.publicUrl, description: description.trim() },
+      { onConflict: 'contest_id,author_name' }
+    )
+    if (dbError) { setError('SAVE FAILED: ' + dbError.message); setUploading(false); return }
     navigate(`/contest/${contestId}/play`)
   }
 
   return (
-    <div className="page">
-      <button className="back-btn" onClick={() => navigate(`/contest/${contestId}/play`)}>
-        ← Back
-      </button>
-      <h1>Submit your entry</h1>
-      <p style={{ marginBottom: '1.5rem' }}>
-        Upload a photo or video. It will compete in every category.
-      </p>
+    <div className="p-console">
+      <div className="p-grid-bg" />
+      <div className="p-topbar">
+        <div className="p-topbar-title">Submit Entry</div>
+        <div className="p-topbar-right">
+          <div className="p-leds">
+            <div className="p-led p-led-g" />
+            <div className="p-led p-led-o" />
+            <div className="p-led p-led-b" />
+          </div>
+          <div className="p-topbar-status">UPLOAD READY</div>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <label>Photo or video</label>
-        <input
-          type="file"
-          accept="image/*,video/*"
-          onChange={handleFileChange}
-          style={{ marginBottom: '0.75rem' }}
-        />
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '1rem', position: 'relative', zIndex: 1 }}>
+        <button className="p-back" onClick={() => navigate(`/contest/${contestId}/play`)}>◀ BACK</button>
 
-        {preview && (
-          <img src={preview} alt="Preview" className="media-preview" />
-        )}
+        <div className="p-panel p-panel-cut-tr" style={{ marginBottom: 3 }}>
+          <div className="p-panel-header">
+            <div className="p-panel-dot" />
+            <div className="p-panel-title">Submit Entry</div>
+          </div>
+          <div className="p-contest-meta" style={{ padding: '8px 10px' }}>Upload media — competes in all categories</div>
+        </div>
 
-        <label>Description (optional)</label>
-        <textarea
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          placeholder="Say something about your entry…"
-          rows={3}
-        />
+        <div className="p-panel p-panel-cut-br">
+          <div className="p-form-wrap">
+            <form onSubmit={handleSubmit}>
+              <label className="p-field-label">Photo / Video file</label>
+              <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="p-input" />
+              {preview && (
+                <div className="p-media" style={{ marginBottom: 8 }}>
+                  <img src={preview} alt="Preview" />
+                  <div className="p-media-label">PREVIEW</div>
+                </div>
+              )}
+              <label className="p-field-label">Description (optional)</label>
+              <textarea className="p-input" value={description} onChange={e => setDescription(e.target.value)} placeholder="ADD A NOTE..." rows={3} />
+              {error && <p className="p-error">⚠ {error}</p>}
+              <button type="submit" className="p-btn-primary" disabled={uploading}>
+                {uploading ? 'UPLOADING...' : '▶ CONFIRM SUBMISSION'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
 
-        {error && <p className="error-text">{error}</p>}
-
-        <button type="submit" className="btn btn-primary btn-full" disabled={uploading}>
-          {uploading ? 'Uploading…' : 'Submit entry'}
-        </button>
-      </form>
+      <div className="p-bottombar">
+        <span>CONTEST-APP v2.0</span>
+        <span>◆ UPLOAD TO COMPETE ◆</span>
+        <span>2025</span>
+      </div>
     </div>
   )
 }
