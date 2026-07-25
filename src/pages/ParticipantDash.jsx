@@ -11,6 +11,7 @@ export default function ParticipantDash() {
   const [categories, setCategories] = useState([])
   const [myEntry, setMyEntry] = useState(null)
   const [myVotes, setMyVotes] = useState([])
+  const [pastContests, setPastContests] = useState([])
   const [loading, setLoading] = useState(true)
   const participantName = sessionStorage.getItem(`participant_${contestId}`)
 
@@ -21,16 +22,37 @@ export default function ParticipantDash() {
 
   async function fetchAll() {
     setLoading(true)
-    const [contestRes, catsRes, entryRes, votesRes] = await Promise.all([
+    const [contestRes, catsRes, entryRes, votesRes, pastRes] = await Promise.all([
       supabase.from('contests').select('*').eq('id', contestId).single(),
       supabase.from('categories').select('*').eq('contest_id', contestId).order('created_at'),
       supabase.from('entries').select('*').eq('contest_id', contestId).eq('author_name', participantName).maybeSingle(),
       supabase.from('votes').select('category_id').eq('contest_id', contestId).eq('voter_name', participantName),
+      supabase.from('contests').select('id, name').eq('phase', 'results').neq('id', contestId).order('created_at', { ascending: false }).limit(10),
     ])
     if (contestRes.data) setContest(contestRes.data)
     if (catsRes.data) setCategories(catsRes.data)
     if (entryRes.data) setMyEntry(entryRes.data)
     if (votesRes.data) setMyVotes(votesRes.data.map(v => v.category_id))
+
+    // For each past contest, fetch categories + winning entry per category
+    if (pastRes.data && pastRes.data.length > 0) {
+      const enriched = await Promise.all(pastRes.data.map(async pc => {
+        const { data: cats } = await supabase.from('categories').select('*').eq('contest_id', pc.id).order('created_at')
+        const winners = await Promise.all((cats || []).map(async cat => {
+          const { data: votes } = await supabase.from('votes').select('entry_id').eq('contest_id', pc.id).eq('category_id', cat.id)
+          if (!votes || votes.length === 0) return { catName: cat.name, winner: null }
+          // Count votes
+          const counts = {}
+          votes.forEach(v => { counts[v.entry_id] = (counts[v.entry_id] || 0) + 1 })
+          const topEntryId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0]
+          const { data: entry } = await supabase.from('entries').select('author_name').eq('id', topEntryId).single()
+          return { catName: cat.name, winner: entry?.author_name || '???' }
+        }))
+        return { ...pc, winners }
+      }))
+      setPastContests(enriched)
+    }
+
     setLoading(false)
   }
 
@@ -68,9 +90,9 @@ export default function ParticipantDash() {
           <div className="p-contest-meta" style={{ marginBottom: 0 }}>Session active</div>
           <div className={`p-status-pill ${phaseClass[contest.phase] || ''}`}>{phaseLabel[contest.phase]}</div>
           <div className="p-sys-info">
-            <div className="p-sys-row"><span>Categories</span><span>{categories.length}</span></div>
-            <div className="p-sys-row"><span>Voted</span><span>{votedCount} / {categories.length}</span></div>
-            <div className="p-sys-row"><span>Entry</span><span>{myEntry ? 'SUBMITTED' : 'PENDING'}</span></div>
+            <div className="p-sys-row"><span>Categories</span><span style={{ color: '#7799bb' }}>{categories.length}</span></div>
+            <div className="p-sys-row"><span>Voted</span><span style={{ color: '#7799bb' }}>{votedCount} / {categories.length}</span></div>
+            <div className="p-sys-row"><span>Entry</span><span style={{ color: '#7799bb' }}>{myEntry ? 'SUBMITTED' : 'PENDING'}</span></div>
             <div className="p-sys-row hi"><span>Status</span><span>ONLINE</span></div>
           </div>
           <div className="p-nav">
@@ -81,7 +103,7 @@ export default function ParticipantDash() {
         </div>
 
         {/* CENTER */}
-        <div className="p-panel p-panel-cut-both" style={{ gridColumn: 2, gridRow: 1 }}>
+        <div className="p-panel p-panel-cut-both" style={{ gridColumn: 2, gridRow: 1, overflowY: 'auto' }}>
           <div className="p-panel-header">
             <div className="p-panel-dot" />
             <div className="p-panel-title">
@@ -138,6 +160,52 @@ export default function ParticipantDash() {
               <button className="p-btn-primary" onClick={() => navigate(`/contest/${contestId}/results`)}>▶ VIEW FINAL RESULTS</button>
             </div>
           )}
+
+          {/* HALL OF FAME */}
+          {pastContests.length > 0 && (
+            <>
+              <div style={{ margin: '12px 8px 8px', paddingTop: '10px', borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '9px', color: 'var(--orange)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: 'var(--orange)' }}>◆</span> Hall of Fame
+                </div>
+                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px' }}>
+                  {pastContests.map(pc => (
+                    <div key={pc.id} style={{
+                      minWidth: '160px',
+                      background: 'linear-gradient(160deg, #0a1428 0%, #060e1c 100%)',
+                      border: '1px solid var(--border)',
+                      borderTop: '2px solid var(--accent-dim)',
+                      flexShrink: 0,
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}>
+                      {/* CRT scan effect */}
+                      <div style={{
+                        position: 'absolute', inset: 0, pointerEvents: 'none',
+                        background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)',
+                        zIndex: 1,
+                      }} />
+                      <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--border)', background: '#080f1e', position: 'relative', zIndex: 2 }}>
+                        <div style={{ fontSize: '7px', color: 'var(--accent)', letterSpacing: '2px', textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {pc.name}
+                        </div>
+                      </div>
+                      <div style={{ padding: '6px 8px', position: 'relative', zIndex: 2 }}>
+                        {pc.winners.map((w, i) => (
+                          <div key={i} style={{ marginBottom: '5px', paddingBottom: '5px', borderBottom: i < pc.winners.length - 1 ? '1px solid #0a1428' : 'none' }}>
+                            <div style={{ fontSize: '7px', color: 'var(--text-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>{w.catName}</div>
+                            <div style={{ fontSize: '9px', color: w.winner ? 'var(--orange)' : '#334466', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 700 }}>
+                              {w.winner ? `◆ ${w.winner}` : 'NO VOTES'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* RIGHT — music */}
@@ -148,7 +216,7 @@ export default function ParticipantDash() {
         {/* BOTTOM MINI PANELS */}
         <div className="p-bottom-row">
           <div className="p-mini p-panel-cut-tr">
-            <div className="p-mini-label">Entries</div>
+            <div className="p-mini-label">Categories</div>
             <div className="p-mini-value">{categories.length}</div>
             <div className="p-seg-row">
               {Array.from({ length: 8 }).map((_, i) => (

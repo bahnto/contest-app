@@ -15,9 +15,9 @@ export default function AdminDashboard() {
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [deleting, setDeleting] = useState(null)
   const navigate = useNavigate()
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!sessionStorage.getItem('admin')) navigate('/')
   }, [navigate])
@@ -32,7 +32,6 @@ export default function AdminDashboard() {
       .from('contests')
       .select('*')
       .order('created_at', { ascending: false })
-
     if (!error) setContests(data || [])
     setLoading(false)
   }
@@ -41,17 +40,25 @@ export default function AdminDashboard() {
     e.preventDefault()
     if (!newName.trim()) return
     setCreating(true)
-
     const { data, error } = await supabase
       .from('contests')
       .insert({ name: newName.trim(), phase: 'draft' })
       .select()
       .single()
-
-    if (!error && data) {
-      navigate(`/admin/contest/${data.id}`)
-    }
+    if (!error && data) navigate(`/admin/contest/${data.id}`)
     setCreating(false)
+  }
+
+  async function deleteContest(e, contestId) {
+    e.stopPropagation()
+    if (!confirm('Delete this contest and all its data?')) return
+    setDeleting(contestId)
+    await supabase.from('votes').delete().eq('contest_id', contestId)
+    await supabase.from('entries').delete().eq('contest_id', contestId)
+    await supabase.from('categories').delete().eq('contest_id', contestId)
+    await supabase.from('contests').delete().eq('id', contestId)
+    setContests(cs => cs.filter(c => c.id !== contestId))
+    setDeleting(null)
   }
 
   if (loading) return <div className="loading">Loading...</div>
@@ -100,7 +107,16 @@ export default function AdminDashboard() {
           >
             <div className="row-between">
               <span style={{ fontWeight: 600 }}>{c.name}</span>
-              <span className={`badge ${phase.className}`}>{phase.label}</span>
+              <div className="row" style={{ gap: '0.5rem' }}>
+                <span className={`badge ${phase.className}`}>{phase.label}</span>
+                <button
+                  className="btn btn-sm btn-danger"
+                  disabled={deleting === c.id}
+                  onClick={e => deleteContest(e, c.id)}
+                >
+                  {deleting === c.id ? '…' : 'Delete'}
+                </button>
+              </div>
             </div>
           </div>
         )
