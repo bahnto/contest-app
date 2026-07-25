@@ -48,6 +48,20 @@ export default function VoteCategory() {
   return (
     <div className="p-console">
       <div className="p-grid-bg" />
+
+      {lightbox && (
+        <div
+          onClick={() => setLightbox(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 9999, cursor: 'zoom-out'
+          }}
+        >
+          <img src={lightbox} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain' }} />
+        </div>
+      )}
+
       <div className="p-topbar">
         <div className="p-topbar-title">Voting Terminal</div>
         <div className="p-topbar-right">
@@ -61,7 +75,6 @@ export default function VoteCategory() {
       </div>
 
       <div className="p-layout">
-        {/* LEFT */}
         <div className="p-panel p-panel-cut-tr p-left">
           <div className="p-panel-header">
             <div className="p-panel-dot" />
@@ -69,7 +82,7 @@ export default function VoteCategory() {
           </div>
           <div className="p-contest-name">{category?.name}</div>
           <div className="p-contest-meta">Select one entry</div>
-          <div className="p-contest-meta">Tap to cast vote</div>
+          <div className="p-contest-meta">Click image to enlarge</div>
           {currentVote && <div className="p-status-pill results">VOTE CAST</div>}
           <div className="p-sys-info">
             <div className="p-sys-row"><span>Entries</span><span>{entries.length}</span></div>
@@ -80,7 +93,6 @@ export default function VoteCategory() {
           </div>
         </div>
 
-        {/* CENTER */}
         <div className="p-panel p-panel-cut-both" style={{ gridColumn: 2, gridRow: 1 }}>
           <div className="p-panel-header">
             <div className="p-panel-dot" />
@@ -89,18 +101,6 @@ export default function VoteCategory() {
           {entries.length === 0 && <div className="p-notice p-notice-warn" style={{ margin: '10px 8px' }}>NO ENTRIES FOUND.</div>}
           {entries.map(entry => {
             const isVoted = currentVote === entry.id
-            {lightbox && (
-  <div
-    onClick={() => setLightbox(null)}
-    style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 9999, cursor: 'zoom-out'
-    }}
-  >
-    <img src={lightbox} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain' }} />
-  </div>
-)}
             return (
               <div key={entry.id} className={`p-cat-item ${isVoted ? 'voted' : ''}`} onClick={() => !saving && castVote(entry.id)}>
                 <div className="p-cat-num" style={{ fontSize: '10px', color: isVoted ? 'var(--accent)' : 'var(--accent-dim)' }}>
@@ -110,12 +110,12 @@ export default function VoteCategory() {
                   {entry.media_url && (
                     <div className="p-media" style={{ margin: 0, borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border)' }}>
                       <img
-  src={entry.media_url}
-  alt={entry.author_name}
-  onError={e => e.target.style.display='none'}
-  style={{ maxHeight: 120, cursor: 'zoom-in' }}
-  onClick={e => { e.stopPropagation(); setLightbox(entry.media_url) }}
-/>
+                        src={entry.media_url}
+                        alt={entry.author_name}
+                        onError={e => e.target.style.display='none'}
+                        style={{ maxHeight: 120, cursor: 'zoom-in' }}
+                        onClick={e => { e.stopPropagation(); setLightbox(entry.media_url) }}
+                      />
                       <div className="p-media-label">{entry.author_name.toUpperCase()}</div>
                     </div>
                   )}
@@ -132,7 +132,6 @@ export default function VoteCategory() {
           })}
         </div>
 
-        {/* RIGHT */}
         <div className="p-panel p-panel-cut-tl p-right">
           <MusicPlayer />
         </div>
