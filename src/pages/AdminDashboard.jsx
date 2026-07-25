@@ -53,11 +53,12 @@ export default function AdminDashboard() {
     e.stopPropagation()
     if (!confirm('Delete this contest and all its data?')) return
     setDeleting(contestId)
-    await supabase.from('votes').delete().eq('contest_id', contestId)
-    await supabase.from('entries').delete().eq('contest_id', contestId)
-    await supabase.from('categories').delete().eq('contest_id', contestId)
-    await supabase.from('contests').delete().eq('id', contestId)
-    setContests(cs => cs.filter(c => c.id !== contestId))
+    const { error } = await supabase.from('contests').delete().eq('id', contestId)
+    if (error) {
+      alert('Delete failed: ' + error.message)
+    } else {
+      setContests(cs => cs.filter(c => c.id !== contestId))
+    }
     setDeleting(null)
   }
 
