@@ -13,6 +13,7 @@ export default function VoteCategory() {
   const [currentVote, setCurrentVote] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [lightbox, setLightbox] = useState(null)
 
   useEffect(() => {
     if (!participantName) { navigate(`/contest/${contestId}`); return }
@@ -88,6 +89,18 @@ export default function VoteCategory() {
           {entries.length === 0 && <div className="p-notice p-notice-warn" style={{ margin: '10px 8px' }}>NO ENTRIES FOUND.</div>}
           {entries.map(entry => {
             const isVoted = currentVote === entry.id
+            {lightbox && (
+  <div
+    onClick={() => setLightbox(null)}
+    style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 9999, cursor: 'zoom-out'
+    }}
+  >
+    <img src={lightbox} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain' }} />
+  </div>
+)}
             return (
               <div key={entry.id} className={`p-cat-item ${isVoted ? 'voted' : ''}`} onClick={() => !saving && castVote(entry.id)}>
                 <div className="p-cat-num" style={{ fontSize: '10px', color: isVoted ? 'var(--accent)' : 'var(--accent-dim)' }}>
@@ -96,7 +109,13 @@ export default function VoteCategory() {
                 <div className="p-cat-body" style={{ padding: 0 }}>
                   {entry.media_url && (
                     <div className="p-media" style={{ margin: 0, borderRadius: 0, border: 'none', borderBottom: '1px solid var(--border)' }}>
-                      <img src={entry.media_url} alt={entry.author_name} onError={e => e.target.style.display='none'} style={{ maxHeight: 120 }} />
+                      <img
+  src={entry.media_url}
+  alt={entry.author_name}
+  onError={e => e.target.style.display='none'}
+  style={{ maxHeight: 120, cursor: 'zoom-in' }}
+  onClick={e => { e.stopPropagation(); setLightbox(entry.media_url) }}
+/>
                       <div className="p-media-label">{entry.author_name.toUpperCase()}</div>
                     </div>
                   )}
