@@ -164,7 +164,7 @@ export default function HoloEffects() {
 
       // Outer triangle
       ctx.save()
-      ctx.rotate(-Math.PI / 2)
+      ctx.rotate(-Math.PI * 0.75)
       const s = 11
       ctx.beginPath()
       ctx.moveTo(0, -s * 1.3)
