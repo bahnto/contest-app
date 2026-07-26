@@ -7,7 +7,13 @@ import HoloEffects from './components/HoloEffects.jsx'
 import { playSound, preloadSounds } from './lib/sounds.js'
 
 // Global click sound on all buttons
+let soundReady = false
 document.addEventListener('click', e => {
+  if (!soundReady) {
+    preloadSounds()
+    soundReady = true
+    return
+  }
   if (e.target.closest('button') || e.target.closest('.p-cat-item') || e.target.closest('.p-panel-clickable')) {
     playSound('/sounds/vote.mp3', 0.4)
   }
