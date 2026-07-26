@@ -31,7 +31,7 @@ export default function HoloEffects() {
       opacity: Math.random() * 0.15 + 0.03,
       rotation: Math.random() * Math.PI * 2,
       rotSpeed: (Math.random() - 0.5) * 0.008,
-      color: Math.random() > 0.5 ? '#b060ff' : '#00ffee',
+      color: Math.random() > 0.5 ? '#00ffee' : '#00ffee',
     }))
 
     function drawHUDCircle(t) {
@@ -70,7 +70,7 @@ export default function HoloEffects() {
       const midR = maxR * 0.72
       ctx.beginPath()
       ctx.arc(0, 0, midR, 0, Math.PI * 2)
-      ctx.strokeStyle = 'rgba(176,96,255,0.07)'
+      ctx.strokeStyle = 'rgba(0,255,238,0.07)'
       ctx.lineWidth = 0.8
       ctx.stroke()
       // Arcs on mid ring
@@ -80,7 +80,7 @@ export default function HoloEffects() {
         ctx.rotate(a)
         ctx.beginPath()
         ctx.arc(0, 0, midR, -0.25, 0.25)
-        ctx.strokeStyle = 'rgba(176,96,255,0.3)'
+        ctx.strokeStyle = 'rgba(0,255,238,0.3)'
         ctx.lineWidth = 1.5
         ctx.stroke()
         ctx.restore()
@@ -164,7 +164,7 @@ export default function HoloEffects() {
 
       // Outer triangle
       ctx.save()
-      ctx.rotate(-Math.PI * 1.75)
+      ctx.rotate(-Math.PI * 0.25)
       const s = 11
       ctx.beginPath()
       ctx.moveTo(0, -s * 1.3)
@@ -185,9 +185,9 @@ export default function HoloEffects() {
       ctx.closePath()
       ctx.fillStyle = 'rgba(0,255,238,0.1)'
       ctx.fill()
-      ctx.strokeStyle = 'rgba(176,96,255,0.7)'
+      ctx.strokeStyle = 'rgba(0,255,238,0.7)'
       ctx.lineWidth = 0.8
-      ctx.shadowColor = '#b060ff'
+      ctx.shadowColor = '#00ffee'
       ctx.shadowBlur = 6
       ctx.stroke()
       ctx.restore()
@@ -297,7 +297,7 @@ export default function HoloEffects() {
           life: 0.7 + Math.random() * 0.3,
           rotation: Math.random() * Math.PI * 2,
           type: Math.random() > 0.5 ? 0 : 1,
-          color: Math.random() > 0.5 ? '#00ffee' : '#b060ff',
+          color: Math.random() > 0.5 ? '#00ffee' : '#00ffee',
         })
         if (trailRef.current.length > 18) trailRef.current.shift()
       }

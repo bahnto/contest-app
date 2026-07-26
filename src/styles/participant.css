@@ -11,8 +11,8 @@
   --accent: #4499ff;
   --accent-dim: #1a3a6a;
   --accent-glow: rgba(68,153,255,0.25);
-  --orange: #ff8800;
-  --orange-dim: #663300;
+  --orange: #00ffee;
+  --orange-dim: #006655;
   --green: #00ff88;
   --green-dim: #004422;
   --text: #aabbd0;
@@ -833,23 +833,23 @@ textarea.p-input { resize: vertical; min-height: 70px; }
 
 /* Violet accent on voted items */
 .p-cat-item.voted {
-  border-color: rgba(176,96,255,0.2);
+  border-color: rgba(68,153,255,0.15);
 }
 
 .p-cat-item.voted::before {
-  background: linear-gradient(180deg, #b060ff, #6030aa);
+  background: linear-gradient(180deg, var(--accent), var(--accent-dim));
 }
 
 .p-voted-tag {
-  border-color: rgba(176,96,255,0.5);
-  color: #cc88ff;
-  background: rgba(80,0,160,0.2);
-  text-shadow: 0 0 6px rgba(176,96,255,0.4);
+  border-color: rgba(68,153,255,0.4);
+  color: #00ffee;
+  background: rgba(0,80,120,0.2);
+  text-shadow: 0 0 6px rgba(0,255,238,0.3);
 }
 
 /* Holo topbar accent */
 .p-topbar-title {
-  background: linear-gradient(90deg, var(--orange), #ff44aa, var(--orange));
+  background: linear-gradient(90deg, var(--accent), #00ffee, var(--accent));
   background-size: 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -869,4 +869,4 @@ textarea.p-input { resize: vertical; min-height: 70px; }
 
 /* LED pulse colors — cyan/violet mix */
 .p-led-g { background: #00ffee; box-shadow: 0 0 6px #00ffee; }
-.p-led-b { background: #b060ff; box-shadow: 0 0 6px #b060ff; }
+.p-led-b { background: #00ccdd; box-shadow: 0 0 6px #00ccdd; }
