@@ -731,3 +731,142 @@ textarea.p-input { resize: vertical; min-height: 70px; }
 }
 
 .p-error { font-size: 9px; color: #ff4444; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+
+/* ─── HOLO / PSYCHO PASS ADDITIONS ─── */
+
+/* Panel scan-in animation */
+@keyframes p-scanin {
+  0% { opacity: 0; clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
+  60% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%); }
+  100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+
+.p-panel { animation: p-scanin 0.4s ease-out forwards; }
+.p-left  { animation-delay: 0.05s; }
+.p-right { animation-delay: 0.15s; }
+.p-bottom-row .p-mini:nth-child(1) { animation-delay: 0.2s; }
+.p-bottom-row .p-mini:nth-child(2) { animation-delay: 0.25s; }
+.p-bottom-row .p-mini:nth-child(3) { animation-delay: 0.3s; }
+
+/* Holographic glow on panel headers */
+.p-panel-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.p-panel-header::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,255,238,0.06), transparent);
+  animation: p-sweep 4s linear infinite;
+}
+
+@keyframes p-sweep {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Holographic buttons */
+.p-btn-vote {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.1s;
+}
+
+.p-btn-vote::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(0,255,238,0.08) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+}
+
+.p-btn-vote:hover::before { transform: translateX(100%); }
+
+.p-btn-vote:hover {
+  box-shadow: 0 0 12px rgba(68,153,255,0.3), inset 0 0 8px rgba(0,255,238,0.05);
+  border-color: #00ffee;
+  color: #00ffee;
+}
+
+.p-btn-vote:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 0 4px rgba(68,153,255,0.2), inset 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.p-btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+
+.p-btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(0,255,238,0.07) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+
+.p-btn-primary:hover::before { transform: translateX(100%); }
+
+.p-btn-primary:hover {
+  box-shadow: 0 0 16px rgba(68,153,255,0.25), inset 0 0 10px rgba(0,255,238,0.06);
+  border-color: rgba(0,255,238,0.4);
+  color: #00ffee;
+}
+
+.p-btn-primary:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow: 0 0 4px rgba(68,153,255,0.15), inset 0 3px 8px rgba(0,0,0,0.5);
+}
+
+/* Cat items hover holo effect */
+.p-cat-item:hover {
+  box-shadow: 0 0 12px rgba(68,153,255,0.15), inset 0 0 20px rgba(0,255,238,0.02);
+}
+
+/* Violet accent on voted items */
+.p-cat-item.voted {
+  border-color: rgba(176,96,255,0.2);
+}
+
+.p-cat-item.voted::before {
+  background: linear-gradient(180deg, #b060ff, #6030aa);
+}
+
+.p-voted-tag {
+  border-color: rgba(176,96,255,0.5);
+  color: #cc88ff;
+  background: rgba(80,0,160,0.2);
+  text-shadow: 0 0 6px rgba(176,96,255,0.4);
+}
+
+/* Holo topbar accent */
+.p-topbar-title {
+  background: linear-gradient(90deg, var(--orange), #ff44aa, var(--orange));
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: p-titleshift 4s linear infinite;
+}
+
+@keyframes p-titleshift {
+  0% { background-position: 0% }
+  100% { background-position: 200% }
+}
+
+/* Panel border glow on hover */
+.p-panel:hover {
+  border-color: rgba(0,255,238,0.15);
+}
+
+/* LED pulse colors — cyan/violet mix */
+.p-led-g { background: #00ffee; box-shadow: 0 0 6px #00ffee; }
+.p-led-b { background: #b060ff; box-shadow: 0 0 6px #b060ff; }
