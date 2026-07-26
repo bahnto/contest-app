@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
 import MusicPlayer from '../components/MusicPlayer.jsx'
+import { playReveal } from '../lib/sounds.js'
 import '../styles/participant.css'
 
 export default function Results() {
@@ -13,11 +14,19 @@ export default function Results() {
   const [entries, setEntries] = useState([])
   const [votes, setVotes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     if (!participantName) { navigate(`/contest/${contestId}`); return }
     fetchAll()
   }, [contestId])
+
+  useEffect(() => {
+    if (!loading && contest?.phase === 'results' && !revealed) {
+      setRevealed(true)
+      setTimeout(() => playReveal(), 400)
+    }
+  }, [loading])
 
   async function fetchAll() {
     setLoading(true)
@@ -71,8 +80,8 @@ export default function Results() {
           <div className="p-contest-name">{contest.name}</div>
           <div className="p-status-pill results">RESULTS RELEASED</div>
           <div className="p-sys-info">
-            <div className="p-sys-row"><span>Categories</span><span>{categories.length}</span></div>
-            <div className="p-sys-row"><span>Entries</span><span>{entries.length}</span></div>
+            <div className="p-sys-row"><span>Categories</span><span style={{ color: '#7799bb' }}>{categories.length}</span></div>
+            <div className="p-sys-row"><span>Entries</span><span style={{ color: '#7799bb' }}>{entries.length}</span></div>
             <div className="p-sys-row hi"><span>Status</span><span>FINAL</span></div>
           </div>
           <div className="p-nav">
@@ -96,7 +105,7 @@ export default function Results() {
 
               return (
                 <div key={cat.id} style={{ marginBottom: '1.5rem' }}>
-                  <div style={{ fontSize: '9px', color: 'var(--orange)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '9px', color: '#00ffee', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>
                     ▶ {cat.name}
                   </div>
                   {sorted.map((entry, i) => {

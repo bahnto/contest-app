@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
+import { playSound, preloadSounds } from '../lib/sounds.js'
 import '../styles/participant.css'
 
 export default function ContestJoin() {
@@ -9,6 +10,7 @@ export default function ContestJoin() {
   const [contest, setContest] = useState(null)
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(true)
+  const [entering, setEntering] = useState(false)
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`participant_${contestId}`)
@@ -17,11 +19,20 @@ export default function ContestJoin() {
       .then(({ data }) => { setContest(data); setLoading(false) })
   }, [contestId, navigate])
 
-  function join(e) {
+  async function join(e) {
     e.preventDefault()
     if (!name.trim()) return
-    sessionStorage.setItem(`participant_${contestId}`, name.trim())
-    navigate(`/contest/${contestId}/play`)
+    preloadSounds()
+
+    // Play welcome sound then navigate
+    playSound('/sounds/welcome.mp3', 0.8)
+    setEntering(true)
+
+    // Small delay so the sound plays before navigation
+    setTimeout(() => {
+      sessionStorage.setItem(`participant_${contestId}`, name.trim())
+      navigate(`/contest/${contestId}/play`)
+    }, 1200)
   }
 
   if (loading) return <div className="p-console"><div className="p-grid-bg" /><div className="p-loading">LOADING...</div></div>
@@ -56,8 +67,19 @@ export default function ContestJoin() {
           <div className="p-form-wrap">
             <form onSubmit={join}>
               <label className="p-field-label">Callsign / Name</label>
-              <input className="p-input" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="ENTER NAME_" maxLength={50} autoFocus />
-              <button type="submit" className="p-btn-primary">▶ ENTER CONTEST</button>
+              <input
+                className="p-input"
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="ENTER NAME_"
+                maxLength={50}
+                autoFocus
+                disabled={entering}
+              />
+              <button type="submit" className="p-btn-primary" disabled={entering}>
+                {entering ? '▶ AUTHENTICATING...' : '▶ ENTER CONTEST'}
+              </button>
             </form>
           </div>
         </div>
