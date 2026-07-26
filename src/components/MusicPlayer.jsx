@@ -1,8 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 
-const TRACKS = [
-  { title: 'TRACK 01', file: '/music.mp3' },
+const TRACKS_BASE = [
+  { title: 'TRACK 01', file: '/music/Track01.mp3' },
+  { title: 'TRACK 02', file: '/music/Track02.mp3' },
+  { title: 'TRACK 03', file: '/music/Track03.mp3' },
+  { title: 'TRACK 04', file: '/music/Track04.mp3' },
+  { title: 'TRACK 05', file: '/music/Track05.mp3' },
+  { title: 'TRACK 06', file: '/music/Track06.mp3' },
+  { title: 'TRACK 07', file: '/music/Track07.mp3' },
 ]
+
+// Shuffle on load
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const TRACKS = shuffle(TRACKS_BASE)
 
 export default function MusicPlayer() {
   const audioRef = useRef(null)
