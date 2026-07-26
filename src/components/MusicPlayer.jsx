@@ -30,7 +30,7 @@ export default function MusicPlayer() {
   const audioCtxRef = useRef(null)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
-  const [volume, setVolume] = useState(0.7)
+  const [volume, setVolume] = useState(0.4)
   const [trackIndex, setTrackIndex] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -128,10 +128,10 @@ export default function MusicPlayer() {
   function toggleMute() { audioRef.current.muted = !muted; setMuted(m => !m) }
 
   function handleVolumeChange(e) {
-    const v = parseFloat(e.target.value)
-    setVolume(v)
-    audioRef.current.volume = v
-  }
+  const v = parseFloat(e.target.value)
+  setVolume(v)
+  if (audioRef.current) audioRef.current.volume = v
+}
 
   function handleSeek(e) {
     const rect = e.currentTarget.getBoundingClientRect()
