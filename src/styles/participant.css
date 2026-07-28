@@ -404,7 +404,7 @@ body { font-family: var(--font-mono); }
 }
 
 .p-mini {
-  background: linear-gradient(160deg, var(--panel) 0%, var(--panel-dark) 100%);
+  background: linear-gradient(160deg, #062332 0%, var(--panel-dark) 100%);
   border: 1px solid var(--border);
   padding: 8px 10px;
 }
@@ -571,7 +571,7 @@ body { font-family: var(--font-mono); }
 
 .p-notice-info { background: #00081a; color: #4488cc; border-color: var(--accent-dim); }
 .p-notice-success { background: #001408; color: var(--green); border-color: #006633; }
-.p-notice-warn { background: #100800; color: var(--orange); border-color: var(--orange-dim); }
+.p-notice-warn { background: #000010; color: var(--orange); border-color: var(--orange-dim); }
 
 /* ─── FORM ─── */
 .p-form-wrap { padding: 10px; }
