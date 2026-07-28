@@ -714,7 +714,7 @@ textarea.p-input { resize: vertical; min-height: 70px; }
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,136,0,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 213, 0.3), transparent);
 }
 
 /* ─── LOADING ─── */
