@@ -4,8 +4,8 @@
 
 :root {
   --bg: #0a0e1a;
-  --panel: #180e25;
-  --panel-dark: #09000f;
+  --panel: #0f1830;
+  --panel-dark: #0a1020;
   --border: #1a2a4a;
   --border-light: #2a3a5a;
   --accent: #4499ff;
@@ -870,3 +870,5 @@ textarea.p-input { resize: vertical; min-height: 70px; }
 /* LED pulse colors — cyan/violet mix */
 .p-led-g { background: #00ffee; box-shadow: 0 0 6px #00ffee; }
 .p-led-b { background: #00ccdd; box-shadow: 0 0 6px #00ccdd; }
+
+
