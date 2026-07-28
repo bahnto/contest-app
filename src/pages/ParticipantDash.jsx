@@ -262,3 +262,4 @@ export default function ParticipantDash() {
 // notita para updatear xd me pasa por no salvar la wea ctm pero lpm---
 //pero guardate lpm
 //porfa guardate ya
+//mensajito de guardado 
